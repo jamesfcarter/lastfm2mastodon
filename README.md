@@ -21,6 +21,10 @@ An API key for last.fm is required. You can create one here (you only need to sp
 
 You also need an application key for your Masotodon instance. Log in and go to your preferences. Then go to the _Development_ section and click on _New Application_. You need to specify an application name and make sure the scopes include `write`.
 
+You can compile using:
+```
+go build github.com/jamesfcarter/lastfm2mastodon/cmd/lastfm2mastodon
+```
 
 Once started the application will run forever logging each song that it tooted as well as any errors.
 
