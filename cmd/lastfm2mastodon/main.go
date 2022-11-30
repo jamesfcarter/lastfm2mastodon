@@ -36,7 +36,7 @@ func (tm *trackMonitor) NewTrack(track *lastfm.Track) bool {
 	}
 	lastPlaying := tm.playing
 	lastPlaying.CurrentlyPlaying = false
-	lastPlaying.Count++
+	lastPlaying.Count = track.Count
 	if *track == lastPlaying {
 		tm.played = *track
 		return false
