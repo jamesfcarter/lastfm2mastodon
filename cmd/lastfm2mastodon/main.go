@@ -18,31 +18,40 @@ func defaultConfig() string {
 	return filepath.Join(home, ".lastfm2mastodon")
 }
 
-type trackMonitor struct {
-	playing lastfm.Track
-	played  lastfm.Track
+type track struct {
+	artist string
+	title  string
 }
 
-func (tm *trackMonitor) NewTrack(track *lastfm.Track) bool {
-	if track.CurrentlyPlaying {
-		if *track == tm.playing {
+type trackMonitor struct {
+	playing track
+	played  track
+}
+
+func (tm *trackMonitor) NewTrack(t *lastfm.Track) bool {
+	track := track{
+		artist: t.Artist,
+		title:  t.Title,
+	}
+	if t.CurrentlyPlaying {
+		if track == tm.playing {
 			return false
 		}
-		tm.playing = *track
+		if tm.playing != tm.played {
+			tm.played = tm.playing
+		}
+		tm.playing = track
 		return true
 	}
-	if *track == tm.played {
+	if track == tm.played {
 		return false
 	}
-	lastPlaying := tm.playing
-	lastPlaying.CurrentlyPlaying = false
-	lastPlaying.Count = track.Count
-	if *track == lastPlaying {
-		tm.played = *track
+	if track == tm.playing {
+		tm.played = track
 		return false
 	}
-	if *track != tm.played {
-		tm.played = *track
+	if track != tm.played {
+		tm.played = track
 		return true
 	}
 	return false
