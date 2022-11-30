@@ -10,10 +10,11 @@ type API struct {
 }
 
 type Track struct {
-	Artist string
-	Title  string
-	URL    string
-	Count  int
+	Artist           string
+	Title            string
+	URL              string
+	Count            int
+	CurrentlyPlaying bool
 }
 
 func New(key, secret, user string) *API {
@@ -35,9 +36,10 @@ func (a *API) CurrentlyPlaying() (*Track, error) {
 		return nil, nil
 	}
 	return &Track{
-		Artist: recent.Tracks[0].Artist.Name,
-		Title:  recent.Tracks[0].Name,
-		URL:    recent.Tracks[0].Url,
-		Count:  recent.Total,
+		Artist:           recent.Tracks[0].Artist.Name,
+		Title:            recent.Tracks[0].Name,
+		URL:              recent.Tracks[0].Url,
+		Count:            recent.Total,
+		CurrentlyPlaying: recent.Tracks[0].NowPlaying == "true",
 	}, nil
 }

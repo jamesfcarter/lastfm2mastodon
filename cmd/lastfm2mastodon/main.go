@@ -18,6 +18,36 @@ func defaultConfig() string {
 	return filepath.Join(home, ".lastfm2mastodon")
 }
 
+type trackMonitor struct {
+	playing lastfm.Track
+	played  lastfm.Track
+}
+
+func (tm *trackMonitor) NewTrack(track *lastfm.Track) bool {
+	if track.CurrentlyPlaying {
+		if *track == tm.playing {
+			return false
+		}
+		tm.playing = *track
+		return true
+	}
+	if *track == tm.played {
+		return false
+	}
+	lastPlaying := tm.playing
+	lastPlaying.CurrentlyPlaying = false
+	lastPlaying.Count++
+	if *track == lastPlaying {
+		tm.played = *track
+		return false
+	}
+	if *track != tm.played {
+		tm.played = *track
+		return true
+	}
+	return false
+}
+
 func main() {
 	configFile := flag.String("config", defaultConfig(), "the configuration file")
 	flag.Parse()
@@ -39,9 +69,7 @@ func main() {
 	)
 
 	pollTime := config.LastFM.PollTime()
-	var count int
-	var artist string
-	var title string
+	monitor := &trackMonitor{}
 
 	log.SetFlags(log.Ldate | log.Ltime)
 	for {
@@ -50,20 +78,15 @@ func main() {
 		case err != nil:
 			log.Println(err)
 		case track != nil:
-			if track.Count == count &&
-				track.Artist == artist &&
-				track.Title == title {
+			if !monitor.NewTrack(track) {
 				break
 			}
-			count = track.Count
-			artist = track.Artist
-			title = track.Title
-			err := mastodon.Toot(fmt.Sprintf("%s - %s\n%s", artist, title, track.URL))
+			err := mastodon.Toot(fmt.Sprintf("%s - %s\n%s", track.Artist, track.Title, track.URL))
 			if err != nil {
 				log.Println(err)
 				break
 			}
-			log.Printf("%s - %s\n", artist, title)
+			log.Printf("%d: %s - %s\n", track.Count, track.Artist, track.Title)
 		}
 		time.Sleep(pollTime)
 	}
