@@ -24,11 +24,28 @@ type track struct {
 }
 
 type trackMonitor struct {
+	count   int
 	playing track
 	played  track
 }
 
+func abs(x int) int {
+	if x > 0 {
+		return x
+	}
+	return 0 - x
+}
+
 func (tm *trackMonitor) NewTrack(t *lastfm.Track) bool {
+	if tm.count == 0 {
+		tm.count = t.Count
+	}
+	if abs(tm.count-t.Count) > 50 {
+		// dodgy count from lastfm API
+		return false
+	}
+	tm.count = t.Count
+
 	track := track{
 		artist: t.Artist,
 		title:  t.Title,
