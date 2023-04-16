@@ -103,6 +103,9 @@ func main() {
 		switch {
 		case err != nil:
 			log.Println(err)
+			if config.LastFM.QuitOnError {
+				return
+			}
 		case track != nil:
 			if !monitor.NewTrack(track) {
 				break

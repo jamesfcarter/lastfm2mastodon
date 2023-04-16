@@ -18,6 +18,7 @@ type LastFM struct {
 	Secret          string `toml:"secret"`
 	UserName        string `toml:"user_name"`
 	PollTimeSeconds int    `toml:"poll_time_seconds"`
+	QuitOnError     bool   `toml:"quit_on_error"`
 }
 
 type Mastodon struct {
